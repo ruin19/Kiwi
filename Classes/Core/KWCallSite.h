@@ -6,6 +6,7 @@
 
 #import "KiwiConfiguration.h"
 
+/// 通过文件名和行号来标识调用点
 @interface KWCallSite : NSObject
 
 #pragma mark - Initializing

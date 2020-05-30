@@ -333,7 +333,7 @@ KWCallSite *callSiteAtAddressIfNecessary(long address){
     return  shouldLookup ? [KWCallSite callSiteWithCallerAddress:address] : nil;
 }
 
-#pragma mark - Building Example Groups
+#pragma mark - 写单测时使用的describe, context, it等关键字在此定义，都是全局函数。
 
 void describe(NSString *aDescription, void (^block)(void)) {
     KWCallSite *callSite = callSiteAtAddressIfNecessary(kwCallerAddress());
@@ -387,12 +387,23 @@ void pending_(NSString *aDescription, void (^ignoredBlock)(void)) {
 
 void describeWithCallSite(KWCallSite *aCallSite, NSString *aDescription, void (^block)(void)) {
 
+    // describe最终调用context，可见describe和context两者是完全等价的。
+    // 写单测时可以describe内包含context，也可以context内包含describe。甚至可以多层describe，多层context。
+    // 不过一般的写法还是describe包含context~
     contextWithCallSite(aCallSite, aDescription, block);
 }
 
+/// describe和context关键字都会走到这里
+/// @param aCallSite 调用点，一般都是空
+/// @param aDescription describe或context的描述
+/// @param block 传给describe或context的block
 void contextWithCallSite(KWCallSite *aCallSite, NSString *aDescription, void (^block)(void)) {
     [[KWExampleSuiteBuilder sharedExampleSuiteBuilder] pushContextNodeWithCallSite:aCallSite description:aDescription];
+    // 执行describe或context的block。
+    // 可见定义在describe和context的block都会在构建context树的阶段就执行了。
+    // 不同于beforeEach, it, afterEach等，它们只有在执行用例的阶段才会被执行。
     block();
+    // 执行完block，当前context就完成构建了，从堆中pop出。
     [[KWExampleSuiteBuilder sharedExampleSuiteBuilder] popContextNode];
 }
 

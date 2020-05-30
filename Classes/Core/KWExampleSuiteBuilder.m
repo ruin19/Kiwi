@@ -124,13 +124,17 @@ static NSString * const KWExampleSuiteBuilderException = @"KWExampleSuiteBuilder
 
 - (void)pushContextNodeWithCallSite:(KWCallSite *)aCallSite description:(NSString *)aDescription {
 
+    // contextNodeStack的最后一个context标识了当前处于的那个describe或context。即父context。
     KWContextNode *contextNode = [self.contextNodeStack lastObject];
+    // 创建context节点，并且把上一步获得的scontext作为自己的父亲节点。
     KWContextNode *node = [KWContextNode contextNodeWithCallSite:aCallSite parentContext:contextNode description:aDescription];
 
     if (self.isFocused)
         node.isFocused = [self shouldFocusContextNodeWithCallSite:aCallSite parentNode:contextNode];
 
+    // 父节点把新创建的节点添加为子节点
     [contextNode addContextNode:node];
+    // 保存到堆，现在处于新节点了
     [self.contextNodeStack addObject:node];
 }
 
@@ -167,14 +171,19 @@ static NSString * const KWExampleSuiteBuilderException = @"KWExampleSuiteBuilder
 }
 
 - (void)setBeforeAllNodeWithCallSite:(KWCallSite *)aCallSite block:(void (^)(void))block {
+    // 如果没有在describe或context里面，直接抛异常
     [self raiseIfExampleGroupNotStarted];
 
+    // 获取当前所处的context
     KWContextNode *contextNode = [self.contextNodeStack lastObject];
+    // 创建一个BeforeAll节点，保存block
     KWBeforeAllNode *beforeAllNode = [KWBeforeAllNode beforeAllNodeWithCallSite:aCallSite block:block];
+    // 把beforeAll节点交给当前所处的context节点保存
     [contextNode setBeforeAllNode:beforeAllNode];
 }
 
 - (void)setAfterAllNodeWithCallSite:(KWCallSite *)aCallSite block:(void (^)(void))block {
+    // 参见setBeforeAllNodeWithCallSite，实现很类似
     [self raiseIfExampleGroupNotStarted];
 
     KWContextNode *contextNode = [self.contextNodeStack lastObject];
@@ -183,6 +192,7 @@ static NSString * const KWExampleSuiteBuilderException = @"KWExampleSuiteBuilder
 }
 
 - (void)setBeforeEachNodeWithCallSite:(KWCallSite *)aCallSite block:(void (^)(void))block {
+    // 参见setBeforeAllNodeWithCallSite，实现很类似
     [self raiseIfExampleGroupNotStarted];
 
     KWContextNode *contextNode = [self.contextNodeStack lastObject];
@@ -191,6 +201,7 @@ static NSString * const KWExampleSuiteBuilderException = @"KWExampleSuiteBuilder
 }
 
 - (void)setAfterEachNodeWithCallSite:(KWCallSite *)aCallSite block:(void (^)(void))block {
+    // 参见setBeforeAllNodeWithCallSite，实现很类似
     [self raiseIfExampleGroupNotStarted];
 
     KWContextNode *contextNode = [self.contextNodeStack lastObject];
@@ -242,6 +253,7 @@ static NSString * const KWExampleSuiteBuilderException = @"KWExampleSuiteBuilder
     [self.currentExampleSuite addExample:example];
 }
 
+/// 如果contextNodeStack是空的，证明没有在describe或context里面
 - (void)raiseIfExampleGroupNotStarted {
     if ([self.contextNodeStack count] == 0) {
         [NSException raise:KWExampleSuiteBuilderException
