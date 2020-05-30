@@ -94,9 +94,9 @@ static NSString * const KWExampleSuiteBuilderException = @"KWExampleSuiteBuilder
 
 /// 一对SPEC_BEGIN和SPEC_END产生一个KWExampleSuite。
 /// KWExampleSuite是KWExample的集合。
-/// KWExample则是跟我们写的每一个'it'或'pending'一一对应。
-/// 也就是说我们每写一个'it'或'pending'，都会生成一个KWExample，并放入KWExampleSuite中。
-/// @param buildingBlock 封装了我们写在一对SPEC_BEGIN和SPEC_END之间的代码。
+/// KWExample则跟我们写的每一个'it'或'pending'一一对应。
+/// 也就是说每写一个'it'或'pending'，都会生成一个KWExample，并放入KWExampleSuite中。
+/// @param buildingBlock 封装了一对SPEC_BEGIN和SPEC_END之间的代码。
 - (KWExampleSuite *)buildExampleSuite:(void (^)(void))buildingBlock
 {
     // 创建根KWContextNode,后面也会看到我们写的每一个'describe'，'context'也是一个KWContextNode。
@@ -105,7 +105,7 @@ static NSString * const KWExampleSuiteBuilderException = @"KWExampleSuiteBuilder
 
     // 创建KWExampleSuite并持有rootNode。
     // KWExampleSuiteBuilder是一个单例，它同时持有多个suite，currentExampleSuite表示当前正在创建的suite。
-    // 这也从侧面证明多个XCTestCase是串行执行的，否则这里就会乱了。
+    // 这也从侧面证明多个XCTestCase是串行执行的，否则这里就乱了。
     self.currentExampleSuite = [[KWExampleSuite alloc] initWithRootNode:rootNode];
     
     // KWExampleSuiteBuilder是一个全局单例，它持有多个suite
@@ -114,7 +114,7 @@ static NSString * const KWExampleSuiteBuilderException = @"KWExampleSuiteBuilder
     // contextNodeStack是一个后进先出的堆，用于在构建context树和example集合的时候，指示当前context。
     // 操作方式：进堆 -> 构建 -> 出堆。
     [self.contextNodeStack addObject:rootNode];
-    // 执行我们在SPEC_BEGIN和SPEC_END之间的代码，即一些describe, context, beforeEach, it, afterEach等等函数。
+    // 执行SPEC_BEGIN和SPEC_END之间的代码，即一些describe, context, beforeEach, it, afterEach等等函数。
     // 这些函数的定义在KWExample.m
     buildingBlock();
     [self.contextNodeStack removeAllObjects];

@@ -93,9 +93,9 @@
 
 #pragma mark - Message forwarding
 
-/// 我们在一对SPEC_BEGIN和SPEC_END之间写的代码，其实都在类方法 + (void)buildExampleGroups {} 里面，而不是实例方法。
+/// 在一对SPEC_BEGIN和SPEC_END之间写的代码，其实都在类方法 + (void)buildExampleGroups {} 里面，而不是实例方法。
 /// 也就是说此时self指向的是类，而不是实例。因此一些对self发送的消息，本来期望给到实例的，结果给到了类。比如'XCTAssert*'宏，就使用了self。
-/// 因此这里做了一次转发，转给了当前的KWExample。但KWEXample也不能处理这个消息，它会进一步转发给它的delegate，也就是真正的XCTestCase的一个实例对象。
+/// 因此这里做了一次转发，转给了当前的KWExample实例。但KWEXample实例也不能处理这个消息，它会进一步转发给它的delegate，也就是真正的XCTestCase的一个实例对象。
 /// @param aSelector  接收到的未定义的方法名
 + (id)forwardingTargetForSelector:(SEL)aSelector {
     KWExample *example = [[KWExampleSuiteBuilder sharedExampleSuiteBuilder] currentExample];
