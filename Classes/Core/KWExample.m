@@ -73,6 +73,7 @@
 
 #pragma mark - Message forwarding
 
+// 一般是接收到KWSpec转发过来的消息，处理不了的话转发给delegate，是一个XCTestCase的实例对象。
 - (id)forwardingTargetForSelector:(SEL)aSelector {
     if ([self.delegate respondsToSelector:aSelector]) {
         return self.delegate;

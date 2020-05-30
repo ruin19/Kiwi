@@ -12,6 +12,7 @@
 
 @class KWCallSite;
 
+/// 可以看到Kiwi继承自XCTestCase，它也是在XCTest框架下运行的
 @interface KWSpec : XCTestCase<KWExampleDelegate>
 
 #pragma mark - Adding Verifiers
