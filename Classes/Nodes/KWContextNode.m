@@ -55,11 +55,13 @@ static NSString * const KWContextNodeException = @"KWContextNodeException";
 }
 
 - (void)setBeforeEachNode:(KWBeforeEachNode *)aNode {
+    // 一个describe或context里面只能有一个beforeEach
     [self raiseIfNodeAlreadyExists:self.beforeEachNode];
     _beforeEachNode = aNode;
 }
 
 - (void)setAfterEachNode:(KWAfterEachNode *)aNode {
+    // 一个describe或context里面只能有一个afterEach
     [self raiseIfNodeAlreadyExists:self.afterEachNode];
     _afterEachNode = aNode;
 }
@@ -103,19 +105,25 @@ static NSString * const KWContextNodeException = @"KWContextNodeException";
                 [registerNode acceptExampleNodeVisitor:example];
             }
 
+            // beforeAll在context内的所有example执行之前执行一次
             if (self.performedExampleCount == 0) {
                 [self.beforeAllNode acceptExampleNodeVisitor:example];
             }
 
+            // 执行let
             KWLetNode *letNodeTree = [self letNodeTree];
             [letNodeTree acceptExampleNodeVisitor:example];
 
+            // 执行beforeEach
             [self.beforeEachNode acceptExampleNodeVisitor:example];
 
+            // 执行example的block
             innerExampleBlock();
 
+            // 执行afterEach
             [self.afterEachNode acceptExampleNodeVisitor:example];
 
+            // afterAll在context内所有example执行之后执行一次
             if ([example isLastInContext:self]) {
                 [self.afterAllNode acceptExampleNodeVisitor:example];
                 [letNodeTree unlink];
@@ -128,6 +136,9 @@ static NSString * const KWContextNodeException = @"KWContextNodeException";
         
         self.performedExampleCount++;
     };
+    // 如果有父context，需要把当前example交给父context去执行。
+    // 因为父context内部可能定义了beforeAll, afterAll, beforeEach, afterEach等。
+    // 当前example的执行要考虑在父context中的执行时机。
     if (self.parentContext == nil) {
         outerExampleBlock();
     }

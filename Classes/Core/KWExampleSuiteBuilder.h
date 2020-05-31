@@ -22,7 +22,7 @@
 
 @property (nonatomic, readonly) BOOL isBuildingExampleSuite;
 @property (nonatomic, strong, readonly) KWExampleSuite *currentExampleSuite;
-@property (nonatomic, strong) KWExample *currentExample;
+@property (nonatomic, strong) KWExample *currentExample;    // 指向当前正在执行的example，从侧面证明XCTest框架是串行执行各个被测方法的
 @property (nonatomic, strong) KWCallSite *focusedCallSite;
 
 //spec file name:line number of callsite

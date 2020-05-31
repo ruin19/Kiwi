@@ -12,6 +12,7 @@
 @class KWContextNode;
 @class KWExample;
 
+/// 每个SPEC_BEGIN, SPEC_END对，创建一个KWExampleSuiteTest，管理其中所有的KWExample
 @interface KWExampleSuite : NSObject <KWExampleNodeVisitor, NSFastEnumeration>
 
 - (id)initWithRootNode:(KWContextNode *)contextNode;

@@ -34,6 +34,7 @@
 @property (nonatomic, readonly) KWMatcherFactory *matcherFactory;
 @property (nonatomic, weak) XCTestCase<KWExampleDelegate> *delegate;
 @property (nonatomic, assign) BOOL didNotFinish;
+// 每一个it或pending都会创建一个KWExampleNode节点，节点内部保存了用户定义的block
 @property (nonatomic, strong) id<KWExampleNode> exampleNode;
 @property (nonatomic, assign) BOOL passed;
 
@@ -126,10 +127,14 @@
 
 #pragma mark - Running examples
 
+/// 每一个被测方法的入口
+/// @param delegate XCTestCase的实例对象
 - (void)runWithDelegate:(XCTestCase<KWExampleDelegate> *)delegate {
     self.delegate = delegate;
     [self.matcherFactory registerMatcherClassesWithNamespacePrefix:@"KW"];
     [[KWExampleSuiteBuilder sharedExampleSuiteBuilder] setCurrentExample:self];
+    // 让当前example来访问exampleNode节点，exampleNode有可能是itNode或pendingNode。
+    // 会根据实际节点类型调到visitItNode或visitPendingNode
     [self.exampleNode acceptExampleNodeVisitor:self];
     [self clearVerifiers];
 }
@@ -276,6 +281,7 @@
         
         @try {
             
+            // 执行用户定义的it关键字的block
             aNode.block();
             
 #if KW_TARGET_HAS_INVOCATION_EXCEPTION_BUG
@@ -388,7 +394,7 @@ void pending_(NSString *aDescription, void (^ignoredBlock)(void)) {
 void describeWithCallSite(KWCallSite *aCallSite, NSString *aDescription, void (^block)(void)) {
 
     // describe最终调用context，可见describe和context两者是完全等价的。
-    // 写单测时可以describe内包含context，也可以context内包含describe。甚至可以多层describe，多层context。
+    // 写单测时可以describe内包含context，也可以context内包含describe。还可以多层describe，多层context嵌套。
     // 不过一般的写法还是describe包含context~
     contextWithCallSite(aCallSite, aDescription, block);
 }
@@ -401,7 +407,7 @@ void contextWithCallSite(KWCallSite *aCallSite, NSString *aDescription, void (^b
     [[KWExampleSuiteBuilder sharedExampleSuiteBuilder] pushContextNodeWithCallSite:aCallSite description:aDescription];
     // 执行describe或context的block。
     // 可见定义在describe和context的block都会在构建context树的阶段就执行了。
-    // 不同于beforeEach, it, afterEach等，它们只有在执行用例的阶段才会被执行。
+    // 不同于beforeEach, it, afterEach等关键字定义的block，这些只有在执行用例的阶段才会被执行。
     block();
     // 执行完block，当前context就完成构建了，从堆中pop出。
     [[KWExampleSuiteBuilder sharedExampleSuiteBuilder] popContextNode];

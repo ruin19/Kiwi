@@ -36,11 +36,15 @@
 
 #pragma mark - Managing Nodes
 
-@property (nonatomic, strong) KWBeforeAllNode *beforeAllNode; // 可见一个describe或context里面只能有一个beforeAll
-@property (nonatomic, strong) KWAfterAllNode *afterAllNode; // 可见一个describe或context里面只能有一个afterAll
-@property (nonatomic, strong) KWBeforeEachNode *beforeEachNode; // 可见一个describe或context里面只能有一个beforeEach
-@property (nonatomic, strong) KWAfterEachNode *afterEachNode; // 可见一个describe或context里面只能有一个afterEach
-@property (nonatomic, readonly) NSArray *nodes; //context节点、it节点、pending节点都会存到这个数组里
+// 可见一个describe或context里面的beforeAll, afterAll, beforeEach, afterEach这些节点都是最多出现一次的。
+// 但如果有子describe或子context，它们里面可以有自己的一个这些节点。
+@property (nonatomic, strong) KWBeforeAllNode *beforeAllNode;
+@property (nonatomic, strong) KWAfterAllNode *afterAllNode;
+@property (nonatomic, strong) KWBeforeEachNode *beforeEachNode;
+@property (nonatomic, strong) KWAfterEachNode *afterEachNode;
+
+//context节点、it节点、pending节点都会存到nodes数组里
+@property (nonatomic, readonly) NSArray *nodes;
 @property (nonatomic, readonly) NSArray *registerMatchersNodes;
 @property (nonatomic, readonly) NSArray *letNodes;
 

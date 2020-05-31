@@ -126,7 +126,7 @@ static NSString * const KWExampleSuiteBuilderException = @"KWExampleSuiteBuilder
 
     // contextNodeStack的最后一个context标识了当前处于的那个describe或context。即父context。
     KWContextNode *contextNode = [self.contextNodeStack lastObject];
-    // 创建context节点，并且把上一步获得的scontext作为自己的父亲节点。
+    // 创建context节点，并且把上一步获得的context作为自己的父亲节点。
     KWContextNode *node = [KWContextNode contextNodeWithCallSite:aCallSite parentContext:contextNode description:aDescription];
 
     if (self.isFocused)
@@ -217,17 +217,22 @@ static NSString * const KWExampleSuiteBuilderException = @"KWExampleSuiteBuilder
 }
 
 - (void)addItNodeWithCallSite:(KWCallSite *)aCallSite description:(NSString *)aDescription block:(void (^)(void))block {
+    // 如果没有在describe或context里面，直接抛异常
     [self raiseIfExampleGroupNotStarted];
 
+    // 获取当前所处的context
     KWContextNode *contextNode = [self.contextNodeStack lastObject];
 
     if (self.isFocused && ![self shouldAddItNodeWithCallSite:aCallSite toContextNode:contextNode])
         return;
 
+    // 创建it节点，把定义在it关键字内的block保存在it节点
     KWItNode* itNode = [KWItNode itNodeWithCallSite:aCallSite description:aDescription context:contextNode block:block];
     [contextNode addItNode:itNode];
     
+    // 每一个it关键字都会创建一个KWExample，example持有itNode
     KWExample *example = [[KWExample alloc] initWithExampleNode:itNode];
+    // KWExample放到当前正在构建的KWExampleSuite里。
     [self.currentExampleSuite addExample:example];
 }
 
@@ -249,6 +254,7 @@ static NSString * const KWExampleSuiteBuilderException = @"KWExampleSuiteBuilder
     KWContextNode *contextNode = [self.contextNodeStack lastObject];
     KWPendingNode *pendingNode = [KWPendingNode pendingNodeWithCallSite:aCallSite context:contextNode description:aDescription];
     [contextNode addPendingNode:pendingNode];
+    // pending也会创建一个KWExample
     KWExample *example = [[KWExample alloc] initWithExampleNode:pendingNode];
     [self.currentExampleSuite addExample:example];
 }

@@ -20,7 +20,7 @@
 
 @interface KWExampleSuite()
 
-@property (nonatomic, strong) KWContextNode *rootNode;
+@property (nonatomic, strong) KWContextNode *rootNode;  // context树的根节点
 @property (nonatomic, strong) NSMutableArray *examples;
 @property (nonatomic, strong) NSMutableDictionary *selectorNameCache;
 
