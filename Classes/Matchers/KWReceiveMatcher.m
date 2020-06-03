@@ -59,6 +59,7 @@ static NSString * const StubValueKey = @"StubValueKey";
 
 #pragma mark - Matching
 
+// 在exampleWillEnd时执行这个verifier
 - (BOOL)shouldBeEvaluatedAtEndOfExample {
     return YES;
 }

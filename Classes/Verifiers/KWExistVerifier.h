@@ -12,6 +12,7 @@
 
 @protocol KWReporting;
 
+/// 判断对象是否为nil的verifier
 @interface KWExistVerifier : NSObject<KWVerifying>
 
 #pragma mark - Initializing

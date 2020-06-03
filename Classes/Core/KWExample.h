@@ -24,6 +24,11 @@
 
 @property (nonatomic, strong, readonly) NSMutableArray *lastInContexts;
 @property (nonatomic, weak) KWExampleSuite *suite;
+// unresolvedVerifier解决should, shouldNot和具体的判断表达式的搭配问题。
+// 例如[obj should];漏了判断表达式，语法上不会报错，但是会造成一个unresolvedVerifier，会报测试失败。
+// 我们当然不会像上面这么写，但是有种常见的特殊情况如：NSString *str = nil; [[str shouldNot] beNil];
+// 理论上所有nil后加shouldXXX或shouldNotXXX都会造成后续的判断表达式没有执行（但verifier是创建了的）
+// 不过kiwi宏定义了beNil和beNonNill，针对subject为空的情况做了特殊逻辑，保证能够正常判断。
 @property (nonatomic, strong) id<KWVerifying> unresolvedVerifier;
 
 

@@ -37,6 +37,7 @@
 
 @property (nonatomic, assign) NSTimeInterval timeoutInterval;
 @property (nonatomic, assign) NSTimeInterval delayInterval;
+// 如果shouldWait等于YES，必须等timeout后才判断结果。
 @property (nonatomic, assign) BOOL shouldWait;
 
 @end
@@ -63,6 +64,7 @@
             return [probe isSatisfied];
         }
 		CFRunLoopRunInMode(kCFRunLoopDefaultMode, _delayInterval, false);
+        // 执行判断
         [probe sample];
     }
     

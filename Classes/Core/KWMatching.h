@@ -25,6 +25,7 @@
 @optional
 
 - (BOOL)isNilMatcher;
+// 实现shouldBeEvaluatedAtEndOfExample并返回YES的matcher，会被放到exampleWillEnd的时候执行
 - (BOOL)shouldBeEvaluatedAtEndOfExample;
 - (BOOL)willEvaluateMultipleTimes;
 - (void)setWillEvaluateMultipleTimes:(BOOL)shouldEvaluateMultipleTimes;

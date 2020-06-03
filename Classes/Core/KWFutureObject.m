@@ -33,6 +33,7 @@
 }
 
 - (id)object; {
+    //执行block，返回futureValue
   return self.block();
 }
 

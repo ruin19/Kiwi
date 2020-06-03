@@ -147,10 +147,12 @@
         [self.matcher setWillEvaluateAgainstNegativeExpectation:YES];
     }
 
+    // 当前verify接收到判断表达式了，把unresolvedVerifier清空
     if (self.example.unresolvedVerifier == self) {
         self.example.unresolvedVerifier = nil;
     }
     
+    // 交给具体的matcher去做判断
     [anInvocation invokeWithTarget:self.matcher];
 
 #if KW_TARGET_HAS_INVOCATION_EXCEPTION_BUG

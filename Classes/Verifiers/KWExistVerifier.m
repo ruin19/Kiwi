@@ -49,6 +49,8 @@
 
 #pragma mark - Ending Examples
 
+/// 注意shouldBeNil和shouldNotBeNil的判断时机在example的block执行完之后。
+/// 不过这个校验仅仅是判断是否等于nil，判断时机的滞后或许不会造成什么副作用。
 - (void)exampleWillEnd {
     if (self.expectationType == KWExpectationTypeShould && self.subject == nil) {
         KWFailure *failure = [KWFailure failureWithCallSite:self.callSite message:@"expected subject not to be nil"];

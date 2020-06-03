@@ -14,6 +14,9 @@
 
 @class KWAsyncMatcherProbe;
 
+/// 设置一个超时时间，每隔0.1秒判断一次matcher。
+/// 并不是真正的异步，会阻塞当前测试代码。
+/// receiveXXX, bePostedXXX判断表达式看起来像异步的，只不过是把他们放到exampleWillEnd时候执行判断而已。
 @interface KWAsyncVerifier : KWMatchVerifier
 
 @property (nonatomic, assign) NSTimeInterval timeout;
@@ -25,6 +28,7 @@
 @end
 
 
+/// 封装了matcher和结果
 @interface KWAsyncMatcherProbe : NSObject <KWProbe>
 
 @property (nonatomic, assign) BOOL matchResult;

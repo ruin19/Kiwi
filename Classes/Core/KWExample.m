@@ -30,6 +30,7 @@
 
 @interface KWExample ()
 
+// 一个example里面可以有多个verifier判断
 @property (nonatomic, readonly) NSMutableArray *verifiers;
 @property (nonatomic, readonly) KWMatcherFactory *matcherFactory;
 @property (nonatomic, weak) XCTestCase<KWExampleDelegate> *delegate;
@@ -109,11 +110,13 @@
     }
     id<KWVerifying> verifier = [KWMatchVerifier matchVerifierWithExpectationType:anExpectationType callSite:aCallSite matcherFactory:self.matcherFactory reporter:self];
     [self addVerifier:verifier];
+    // should, shouldNot创建完verifier，会标记unresolvedVerifier，期待紧接着的判断表达式。
     self.unresolvedVerifier = verifier;
     return verifier;
 }
 
 - (id)addAsyncVerifierWithExpectationType:(KWExpectationType)anExpectationType callSite:(KWCallSite *)aCallSite timeout:(NSTimeInterval)timeout shouldWait:(BOOL)shouldWait {
+    // 添加异步verifier没有标记unresolvedVerifier，如果nil对象来调用，后面的判断表达式不会执行。
   id verifier = [KWAsyncVerifier asyncVerifierWithExpectationType:anExpectationType callSite:aCallSite matcherFactory:self.matcherFactory reporter:self probeTimeout:timeout shouldWait: shouldWait];
   [self addVerifier:verifier];
   return verifier;

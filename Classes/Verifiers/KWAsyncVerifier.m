@@ -31,6 +31,7 @@
 
 - (void)verifyWithProbe:(KWAsyncMatcherProbe *)aProbe {
     @try {
+        // 轮询器，每0.1秒轮询一次
         KWProbePoller *poller = [[KWProbePoller alloc] initWithTimeout:self.timeout delay:kKW_DEFAULT_PROBE_DELAY shouldWait: self.shouldWait];
         
         if (![poller check:aProbe]) {

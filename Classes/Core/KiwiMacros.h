@@ -12,7 +12,9 @@
 
 - (void)should;
 - (void)shouldNot;
+//废弃接口，应该使用[[obj should] beNil]
 - (void)shouldBeNil DEPRECATED_ATTRIBUTE;
+//废弃接口，应该使用[[obj shouldNot] beNil]
 - (void)shouldNotBeNil DEPRECATED_ATTRIBUTE;
 - (void)shouldEventually;
 - (void)shouldNotEventually;
@@ -39,9 +41,16 @@
 // Kiwi macros used in specs for verifying expectations.
 #define should attachToVerifier:KW_ADD_MATCH_VERIFIER(KWExpectationTypeShould)
 #define shouldNot attachToVerifier:KW_ADD_MATCH_VERIFIER(KWExpectationTypeShouldNot)
+// shouldBeNil和shouldNotBeNil是已废弃的接口，应当分别使用[[obj should] beNil]和[[obj shouldNot] beNil]替换
+// shouldBeNil和shouldNotBeNil会创建KWExistVerifier，其功能仅判断是否为nil，另外其校验时机是在exampleWillEnd，可能会造成疑惑。
+// [[obj should] beNil]和[[obj shouldNot] beNil] 则是创建KWMatchVerifier，再搭配具体的KWNilMatcher来做判断。
+// 方案上跟其他的should和shouldNot判断是一致的，只是搭配具体的matcher即可。
 #define shouldBeNil attachToVerifier:KW_ADD_EXIST_VERIFIER(KWExpectationTypeShouldNot)
 #define shouldNotBeNil attachToVerifier:KW_ADD_EXIST_VERIFIER(KWExpectationTypeShould)
 
+// 异步的这些接口（使用KW_ADD_ASYNC_VERIFIER的），都没有使用unresolvedVerifier来标记未匹配判断表达式的verifier
+// 所以使用nil的对象来调用这些接口，可能有问题，不清楚是kiwi的bug还是设计如此
+// 例如：NSString *str = nil; [[str shouldNotEventually] beNil]; 是返回成功的~
 #define shouldEventually attachToVerifier:KW_ADD_ASYNC_VERIFIER(KWExpectationTypeShould, kKW_DEFAULT_PROBE_TIMEOUT, NO)
 #define shouldNotEventually attachToVerifier:KW_ADD_ASYNC_VERIFIER(KWExpectationTypeShouldNot, kKW_DEFAULT_PROBE_TIMEOUT, NO)
 #define shouldEventuallyBeforeTimingOutAfter(timeout) attachToVerifier:KW_ADD_ASYNC_VERIFIER(KWExpectationTypeShould, timeout, NO)
@@ -52,10 +61,12 @@
 #define shouldAfterWaitOf(timeout) attachToVerifier:KW_ADD_ASYNC_VERIFIER(KWExpectationTypeShould, timeout, YES)
 #define shouldNotAfterWaitOf(timeout) attachToVerifier:KW_ADD_ASYNC_VERIFIER(KWExpectationTypeShouldNot, timeout, YES)
 
+// 这两个宏定义主要是解决nil对象接shouldXXX，shouldNotXXX的问题
 #define beNil beNil:[KWNilMatcher verifyNilSubject]
 #define beNonNil beNonNil:[KWNilMatcher verifyNonNilSubject]
 
 // used to wrap a pointer to an object that will change in the future (used with shouldEventually)
+// 目的通过block复制对象的指针地址，对象改变但指针地址不变，可以追踪到对象的变化
 #define expectFutureValue(futureValue) [KWFutureObject futureObjectWithBlock:^{ return futureValue; }]
 
 // `fail` triggers a failure report when called

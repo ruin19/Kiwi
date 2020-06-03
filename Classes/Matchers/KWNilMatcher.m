@@ -44,6 +44,9 @@
 // These two methods gets invoked by be(Non)Nil macro in case the subject is nil
 // (and therefore cannot have a verifier attached).
 
+// 这两个方法解决nil对象调用shouldXXX, shouldNotXXX的问题。
+// 此时verifier的subject是nil。而且verify不会正常收到beNil, beNonNil的forwardInvocation。
+// 而是通过verifySubjectExpectingNil来主动调用beNil, beNonNil
 + (BOOL)verifyNilSubject {
     return [self verifySubjectExpectingNil:YES];
 }
@@ -97,12 +100,15 @@
     id<KWVerifying> verifier = currentExample.unresolvedVerifier;
     
     if (verifier && ![verifier subject] && [verifier isKindOfClass:[KWMatchVerifier class]]) {
+        // ![verifier subject]表示nil对象调用shouldXXX或shouldNotXXX，verifier的正常的forwardInvocation不会走到了
+        // 需要主动performSelector去调
         KWMatchVerifier *matchVerifier = (KWMatchVerifier *)verifier;
         if (expectNil) {
             [matchVerifier performSelector:@selector(beNil)];
         } else {
             [matchVerifier performSelector:@selector(beNonNil)];
         }
+        // 完成判断表达式，可以清掉unresolvedVerifier
         currentExample.unresolvedVerifier = nil;
         return NO;
     }
