@@ -74,13 +74,17 @@
 			void* argumentDataBuffer = malloc(KWObjCTypeLength(type));
 			[anInvocation getMessageArgument:argumentDataBuffer atIndex:i];
 			id object = nil;
-			if(*(__unsafe_unretained id*)argumentDataBuffer != [KWAny any] && !KWObjCTypeIsObject(type)) {
+			if(*(__unsafe_unretained id*)argumentDataBuffer != [KWAny any] && !KWObjCTypeIsObject(type)) { // 非对象类型
+                // messageArgumentDataAtIndex的实现也是获取参数type->获取type的length->分配内存->封装到NSData
+                // 为何不直接这样写？：NSData *data = [NSData dataWithBytes:argumentDataBuffer length:KWObjCTypeLength(type)];
+                // 因为后面argumentDataBuffer会被free掉
                 NSData *data = [anInvocation messageArgumentDataAtIndex:i];
                 object = [KWValue valueWithBytes:[data bytes] objCType:type];
-            } else {
+            } else { // 对象类型 或 KWAny 或 block类型
+                // argumentDataBuffer指针指向的内容赋值给了object，所以后面argumentDataBuffer free掉没有关系
 				object = *(__unsafe_unretained id*)argumentDataBuffer;
 
-				if (object != [KWAny any] && KWObjCTypeIsBlock(type)) {
+				if (object != [KWAny any] && KWObjCTypeIsBlock(type)) { // block类型
 					object = [object copy]; // Converting NSStackBlock to NSMallocBlock
 				}
 			}
@@ -114,9 +118,9 @@
         id __autoreleasing object = nil;
 
         // Extract message argument into object (wrapping values if neccesary)
-        if (KWObjCTypeIsObject(objCType) || KWObjCTypeIsClass(objCType)) {
+        if (KWObjCTypeIsObject(objCType) || KWObjCTypeIsClass(objCType)) { // 对象或类类型
             [anInvocation getMessageArgument:&object atIndex:i];
-        } else {
+        } else { // 标量类型
             NSData *data = [anInvocation messageArgumentDataAtIndex:i];
             object = [KWValue valueWithBytes:[data bytes] objCType:objCType];
         }
